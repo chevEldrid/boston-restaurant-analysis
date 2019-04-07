@@ -1,0 +1,26 @@
+---
+title: "Restaurant Markdown"
+author: "Chev Eldrid"
+date: "April 7, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+if (!require(tidyverse)) {install.packages("tidyverse")}
+library(tidyverse)
+library(readr)
+library(ggplot2)
+```
+Okay, we want to pull in the csv info...
+
+..at this point the data has been massaged a bit to take out non-values
+
+```{r}
+fixed_data <- read_csv("unique-boston-rest.csv")
+temp_fixed_data <- data.frame("PriceCount" = fixed_data$PriceCount, "Zip" = fixed_data$Zip)
+#filtering for only Boston zips we have income data for
+temp_fixed_data <- temp_fixed_data[temp_fixed_data$Zip %in% c("2151","2152","2129","2128","2113","2114","2203","2110","2109","2108","2111","2116","2210","2199","2115","2215","2118","2127","2120","2119","2125","2122","2121","2130","2131","2126","2136","2467","2135","2134","2163"), ]
+
+avg_column <- aggregate(. ~ temp_fixed_data$Zip, temp_fixed_data[-2], mean)
+ggplot(data = avg_column, aes(x = avg_column$`temp_fixed_data$Zip`, y=avg_column$PriceCount)) + geom_count()
+```
