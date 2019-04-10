@@ -46,6 +46,7 @@ for(i in 1:nrow(fixed_data)) {
 }
 ```
 ...I can't believe it worked.
+Analyses based on avg price of restaurant categories
 ```{r}
 #split_cats
 skinned_cats <- data.frame("PriceCount" = split_cats$PriceCount, "Category" = split_cats$Category)
@@ -58,4 +59,18 @@ cheapest_cats <- head(skinned_cats[order(skinned_cats$PriceCount,decreasing=FALS
 skinned_cats <- head(skinned_cats[order(skinned_cats$PriceCount,decreasing=TRUE),], n = 20)
 skinned_cats
 cheapest_cats
+```
+Analysis based on avg rating of restuarant categories
+```{r}
+skinned_cats <- data.frame("Rating" = split_cats$Rating, "Category" = split_cats$Category)
+avg_column <- aggregate(. ~ skinned_cats$Category, skinned_cats[-2], mean)
+freq_column <- data.frame(table(skinned_cats$Category))
+freq_column <- data.frame("Category" = freq_column$Var1, "Count"=freq_column$Freq)
+skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "Rating" = avg_column$Rating, "Mode" = freq_column$Count)
+skinned_cats <- skinned_cats[skinned_cats$Mode > 5,]
+cheapest_cats <- head(skinned_cats[order(skinned_cats$Rating,decreasing=FALSE),], n = 30)
+skinned_cats <- head(skinned_cats[order(skinned_cats$Rating,decreasing=TRUE),], n = 30)
+skinned_cats
+cheapest_cats
+
 ```
