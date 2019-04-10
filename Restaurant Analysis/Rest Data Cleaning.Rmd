@@ -54,6 +54,8 @@ freq_column <- data.frame(table(skinned_cats$Category))
 freq_column <- data.frame("Category" = freq_column$Var1, "Count"=freq_column$Freq)
 skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "PriceCount" = avg_column$PriceCount, "Mode" = freq_column$Count)
 skinned_cats <- skinned_cats[skinned_cats$Mode > 1,]
-skinned_cats <- head(skinned_cats[order(skinned_cats$PriceCount,decreasing=TRUE),], n = 10)
+cheapest_cats <- head(skinned_cats[order(skinned_cats$PriceCount,decreasing=FALSE),], n = 20)
+skinned_cats <- head(skinned_cats[order(skinned_cats$PriceCount,decreasing=TRUE),], n = 20)
 skinned_cats
+cheapest_cats
 ```
