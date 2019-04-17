@@ -50,11 +50,11 @@ And better yet, here's the actual key...
 
 Now let's overlay the average incomes per zipcode on top. There's going to be a lot of data here so at first it'll look a little messy, but if you look closely...well it won't get any cleaner but maybe by then you'll have adjusted.
 
-INSERT LINK ONCE COMMITTED
+![Salary Heatmap](https://cheveldrid.github.io/boston/rest-heatmap-sals.jpg "Restaurants and salaries of Boston heatmap")
 
 ...You'll also notice a distinct lack of correlation between incomes and the color-coded map. Perhaps one of the most pronounced examples is comparing the incomes in Back Bay, a decidedly more expensive per restaurant area to Roslindale in the 1 ``$`` territory. So while income *may* play a roll in restaurant prices it's clearly not the deciding factor. Let's try something else.
 
-INSERT LINK ONCE COMMITTED
+![Colleges Heatmap](https://cheveldrid.github.io/boston/heatmap-with-colleges.jpg "Restaurants and collegies of Boston heatmap")
 
 Here we've added red dots for all colleges and universities in the Boston area. While there are a few outliers, there's a decided clump in the Back Bay area where restaurant prices are significantly higher than most surrounding areas. Now, as a college student I won't say we're the only thing contributing to higher food prices but we certainly do eat out a lot. We've also seen trends on and around campus specifically toward higher cost restaurants. Removing the Taco bell from Curry for a higher average cost Mediterranean eatery, and ABP leaving Marino to be replaced by Tatte. Which, funnily enough, both ABP and Tatte are owned by Panera and offer similar food options so the only *real* reason for the switch must be related to price....
 
@@ -81,30 +81,61 @@ for(i in 1:nrow(fixed_data)) {
 }
 ```
 
+First, let's investigate what Yelp reviewers are saying is the most pricy food in Boston. We'll skin down the split categories data frame into just price and category before sorting, finding the mean, and filtering for all categories that have more than 5 reviews. (That way if a type of restaurant is only listed once at a value of "1",  it doesn't completely upset the crowdsourcing angle of this data). I'm not surprised to see Steakhouses first, and organic stores not far behind. 
+
 ```{r}
 #split_cats
 skinned_cats <- data.frame("PriceCount" = split_cats$PriceCount, "Category" = split_cats$Category)
 avg_column <- aggregate(. ~ skinned_cats$Category, skinned_cats[-2], mean)
 freq_column <- data.frame(table(skinned_cats$Category))
 freq_column <- data.frame("Category" = freq_column$Var1, "Count"=freq_column$Freq)
-skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "PriceCount" = avg_column$PriceCount, "Mode" = freq_column$Count)
-skinned_cats <- skinned_cats[skinned_cats$Mode > 1,]
-cheapest_cats <- head(skinned_cats[order(skinned_cats$PriceCount,decreasing=FALSE),], n = 20)
-skinned_cats <- head(skinned_cats[order(skinned_cats$PriceCount,decreasing=TRUE),], n = 20)
-skinned_cats
+skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount, "Count" = freq_column$Count)
+skinned_cats <- skinned_cats[skinned_cats$Count > 5,]
+expensive_cats <- head(skinned_cats[order(skinned_cats$AvgPrice,decreasing=TRUE),], n = 20)
+expensive_cats
+```
+Let's go ahead and do the same thing for cheapest food categories in Boston.
+
+```{r}
+#split_cats
+skinned_cats <- data.frame("PriceCount" = split_cats$PriceCount, "Category" = split_cats$Category)
+avg_column <- aggregate(. ~ skinned_cats$Category, skinned_cats[-2], mean)
+freq_column <- data.frame(table(skinned_cats$Category))
+freq_column <- data.frame("Category" = freq_column$Var1, "Count"=freq_column$Freq)
+skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount, "Count" = freq_column$Count)
+skinned_cats <- skinned_cats[skinned_cats$Count > 5,]
+cheapest_cats <- head(skinned_cats[order(skinned_cats$AvgPrice,decreasing=FALSE),], n = 20)
 cheapest_cats
 ```
-Analysis based on avg rating of restuarant categories
+Next, let's take a look at the Highest rated eating establishments in Boston with a similar process to ranking by price above
 ```{r}
 skinned_cats <- data.frame("Rating" = split_cats$Rating, "Category" = split_cats$Category)
 avg_column <- aggregate(. ~ skinned_cats$Category, skinned_cats[-2], mean)
 freq_column <- data.frame(table(skinned_cats$Category))
 freq_column <- data.frame("Category" = freq_column$Var1, "Count"=freq_column$Freq)
-skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "Rating" = avg_column$Rating, "Mode" = freq_column$Count)
-skinned_cats <- skinned_cats[skinned_cats$Mode > 5,]
-cheapest_cats <- head(skinned_cats[order(skinned_cats$Rating,decreasing=FALSE),], n = 30)
-skinned_cats <- head(skinned_cats[order(skinned_cats$Rating,decreasing=TRUE),], n = 30)
-skinned_cats
-cheapest_cats
+skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "Rating" = avg_column$Rating, "Count" = freq_column$Count)
+skinned_cats <- skinned_cats[skinned_cats$Count > 5,]
+popular_cats <- head(skinned_cats[order(skinned_cats$Rating,decreasing=TRUE),], n = 20)
+popular_cats
 
 ```
+
+Aaaaand the lowest?
+```{r}
+skinned_cats <- data.frame("Rating" = split_cats$Rating, "Category" = split_cats$Category)
+avg_column <- aggregate(. ~ skinned_cats$Category, skinned_cats[-2], mean)
+freq_column <- data.frame(table(skinned_cats$Category))
+freq_column <- data.frame("Category" = freq_column$Var1, "Count"=freq_column$Freq)
+skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "Rating" = avg_column$Rating, "Count" = freq_column$Count)
+skinned_cats <- skinned_cats[skinned_cats$Count > 5,]
+disliked_cats <- head(skinned_cats[order(skinned_cats$Rating,decreasing=FALSE),], n = 20)
+disliked_cats
+```
+## Work Cited
+As mentioned above, all of the Restaurant data comes from the Yelp Fusion API, the income data from city-data.com, and location data from data.boston.gov. For viewer convenience, here's a list of all sources used and last access date:
+
+* [Yelp Fusion API](https://www.yelp.com/developers/documentation/v3) *April 09, 2019*
+* [City-Data](http://www.city-data.com/income/income-Boston-Massachusetts.html) *April 17, 2019*
+* [Boston Zipcodes](https://data.boston.gov/dataset/zip-codes1) *April 09, 2019*
+* [Boston Neighborhoods](https://data.boston.gov/dataset/boston-neighborhoods) *April 09, 2019*
+* [Boston Colleges](https://data.boston.gov/dataset/colleges-and-universities) *April 10, 2019*
