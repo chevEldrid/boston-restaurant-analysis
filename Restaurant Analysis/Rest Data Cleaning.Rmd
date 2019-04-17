@@ -1,7 +1,7 @@
 ---
-title: "Restaurant Markdown"
+title: "Analysis of Boston Restaurant Data"
 author: "Chev Eldrid"
-date: "April 7, 2019"
+date: "April 19, 2019"
 output: html_document
 ---
 
@@ -12,9 +12,15 @@ library(readr)
 library(ggplot2)
 library(data.table)
 ```
-Okay, we want to pull in the csv info...
+# Introduction
+When this project was announced, I knew I wanted to do something with food. *(Maybe the 11:45 - 1:25 timeslot subconsciously affected my decision, but here we are.)* After thinking it over for a few days, I decided I wanted to see if there was any corrolation between average incomes in Boston neighborhoods and the food offered there. In other words, where people could afford to eat out more - was the average cost of said activity higher?
 
-..at this point the data has been massaged a bit to take out non-values
+# Data Collection
+For restaurant data, I settled on the [Yelp Fusion API](https://www.yelp.com/developers/documentation/v3). It's incredibly intuitive to use, and only requires registering your "App" to receive an API key. This is opposed to Google Places that requires a cloud instance and a cloud account with free credits to eventually pull data that costs extra if you want pricing data...it snowballs. Now, the downside of course is for a restaurant to appear in the Yelp data, someone needs to have reviewed it. This does limit the data's exposure to new establishments but as is this is more of a study on overall behavior of restaurant pricing I believe that's an issue that could be pushed to a more in-depth analysis down the road.
+
+The other downside to Yelp, is it limits each query to a maximum result list of 1000 entries. So, if I were to try and GET all restaurants in Boston, I would only receive a list of 1000. The way this list is selected isn't really told to us either, so we have to assume it's some internal logic that we can't attribute for. To get around this, I changed my query from GETting all restaurants in Boston, to individual GET requests for every zipcode in the greater Metropolitan area of Boston. Now, there still may be more than 1000 places in each of these locations but once we filtered the resulting 22000 entries for duplicates, our final Boston restaurant listhad around 4,000 entries. a firm upgrade of our original 1000 by 4 fold. 
+
+Now, with this "unique-boston-rest.csv" list we need to add a couple more columns necessary for aggregate analysis. Instead of doing this in the Python pull script, I felt it would be easier in R - so here we are re-filtering by the list of Boston area codes (in case the list of any zip included entries from outside townships), and then aggregating data per zip for a median price.
 
 ```{r}
 fixed_data <- read_csv("unique-boston-rest.csv")
@@ -25,11 +31,40 @@ temp_fixed_data <- temp_fixed_data[temp_fixed_data$Zip %in% c("2151","2152","212
 avg_column <- aggregate(. ~ temp_fixed_data$Zip, temp_fixed_data[-2], median)
 median_ratings <- data.frame("Zip" = avg_column$`temp_fixed_data$Zip`, "PriceCount" = avg_column$PriceCount)
 write.csv(median_ratings, "zips-and-medians.csv")
-ggplot(data = median_ratings, aes(x = median_ratings$Zip, y=median_ratings$PriceCount)) + geom_count()
 ```
 
+The data doesn't make for a very good graphic on its own, but that's okay. The main use for this segment is to create a new csv called "zips-and-medians.csv" that we'll pull into QGIS as a feature column for each zip and create a heatmap. More on that below. 
 
-Let's try and do something cool with the TYPES of food
+For income data, I used city-data.com. While they don't have an exact trail to where *all* their data comes from, they do reference public datasets and census data as the primary sources for population and income data with the more precise fields coming from commercial sources. There's no easy way to download the selection specific to boston area zipcodes I wanted, so this was a manual process of copying the data from their website and storing it in a csv to eventually upload into QGIS as another zipcode feature column.
+
+The rest of our data is locations and name fields necessary for identifying the neighborhoods and zipcodes of Boston. The majority come from [data.boston.gov](https:/data.boston.gov), in the form of [zips](https://data.boston.gov/dataset/zip-codes1), [Neighborhoods](https://data.boston.gov/dataset/boston-neighborhoods), and [Colleges](https://data.boston.gov/dataset/colleges-and-universities).
+
+## QGIS 
+
+So, here is our first analysis: an overlay of of median restaurant prices per zipcode over a map of Boston with neighborhood names for reference. Blue, means no data could be collected in those areas. Dark purple indicates a median restaurant price of 1 ``$`` (Below ``$``10 for a meal), Pink is an average of 1.5 ``$``, and Orange shows a median restaurant price of ``$$`` (Between ``$``11-30, The big times).
+
+![heatmap1](https://cheveldrid.github.io/boston/basic-rest-heatmap.jpg "Restaurants of Boston heatmap")
+And better yet, here's the actual key...
+
+![mapkey](https://cheveldrid.github.io/boston/qgis-key.jpg "Map key")
+
+Now let's overlay the average incomes per zipcode on top. There's going to be a lot of data here so at first it'll look a little messy, but if you look closely...well it won't get any cleaner but maybe by then you'll have adjusted.
+
+INSERT LINK ONCE COMMITTED
+
+...You'll also notice a distinct lack of correlation between incomes and the color-coded map. Perhaps one of the most pronounced examples is comparing the incomes in Back Bay, a decidedly more expensive per restaurant area to Roslindale in the 1 ``$`` territory. So while income *may* play a roll in restaurant prices it's clearly not the deciding factor. Let's try something else.
+
+INSERT LINK ONCE COMMITTED
+
+Here we've added red dots for all colleges and universities in the Boston area. While there are a few outliers, there's a decided clump in the Back Bay area where restaurant prices are significantly higher than most surrounding areas. Now, as a college student I won't say we're the only thing contributing to higher food prices but we certainly do eat out a lot. We've also seen trends on and around campus specifically toward higher cost restaurants. Removing the Taco bell from Curry for a higher average cost Mediterranean eatery, and ABP leaving Marino to be replaced by Tatte. Which, funnily enough, both ABP and Tatte are owned by Panera and offer similar food options so the only *real* reason for the switch must be related to price....
+
+NEED MORE STUFFS
+
+## R Charts
+
+Apart from all the location-based data crunching, there's also an opportunity to dig through the specific food data aggregating on type as opposed to zipcode.
+
+First, let's take that same unique restaurant list and create individual restaurant entries for each tag given to describe the establishment. For example, if "Amelia's Taqueria" is tagged as both "Mexican" and "Tex-Mex", our resulting dataset will include one entry of Amelia's with "Mexican" as a tag, and another with "Tex-Mex". This is the easiest way to count how many times each tag appears throughout Boston without creating incredibly complex array manipulation methods.
 ```{r}
 fixed_data <- read_csv("unique-boston-rest.csv")
 split_cats <- data.frame(row.names = fixed_data[1, ])
@@ -45,8 +80,7 @@ for(i in 1:nrow(fixed_data)) {
     # do stuff with row
 }
 ```
-...I can't believe it worked.
-Analyses based on avg price of restaurant categories
+
 ```{r}
 #split_cats
 skinned_cats <- data.frame("PriceCount" = split_cats$PriceCount, "Category" = split_cats$Category)
