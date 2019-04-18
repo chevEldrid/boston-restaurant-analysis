@@ -1,0 +1,31 @@
+2151    Seafood 2
+2152    Convenience Stores  2.25
+2129    American    2
+2128    Seafood 2
+2113    Bars    2.33
+2114    Italian 2.5
+2203    Sandwiches (2 total entries)    1
+2110    Seafood 2.66
+2109    Seafood 2.25
+2108    American    1.75 
+2111    Seafood 2.16
+2116    Seafood 3.11
+2210    Seafood 2.6
+2199    Cocktail Bars 2.66
+2115    Bars    3
+2215    Japanese    2.6
+2118    Italian 3
+2127    American    2
+2120    Pizza   1.6
+2119    American 2
+2125    American    2
+2122    Grocery 2
+2121    Pizza   1.5
+2130    American    2.16
+2131    Beer    2
+2126    Chicken Wings   2.5
+2136    Beer    2.5
+2467    Seafood     3
+2135    Seafood 2.3
+2134    American 2.3
+2163    Coffee  1
