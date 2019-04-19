@@ -1,6 +1,6 @@
 ---
 title: "Analysis of Boston Restaurant Data"
-author: "Chev Eldrid"
+author: "Sacheverel Eldrid"
 date: "April 19, 2019"
 output: html_document
 ---
@@ -13,10 +13,10 @@ library(ggplot2)
 library(data.table)
 ```
 # Introduction
-When this project was announced, I knew I wanted to do something with food. *(Maybe the 11:45 - 1:25 timeslot subconsciously affected my decision, but here we are.)* After thinking it over for a few days, I decided I wanted to see if there was any corrolation between average incomes in Boston neighborhoods and the food offered there. In other words, where people could afford to eat out more - was the average cost of said activity higher?
+When this project was announced, I knew I wanted to do something with food. *(Maybe the 11:45am - 1:25pm timeslot subconsciously affected my decision, but here we are.)* After thinking it over for a few days, I decided I wanted to see if there was any corrolation between average incomes in Boston neighborhoods and the food offered there. In other words, where people could afford to eat out more - was the average cost of said activity higher?
 
 # Data Collection
-For restaurant data, I settled on the [Yelp Fusion API](https://www.yelp.com/developers/documentation/v3). It's incredibly intuitive to use, and only requires registering your "App" to receive an API key. This is opposed to Google Places that requires a cloud instance and a cloud account with free credits to eventually pull data that costs extra if you want pricing data...it snowballs. Now, the downside of course is for a restaurant to appear in the Yelp data, someone needs to have reviewed it. This does limit the data's exposure to new establishments but as is this is more of a study on overall behavior of restaurant pricing I believe that's an issue that could be pushed to a more in-depth analysis down the road.
+For restaurant data, I settled on the [Yelp Fusion API](https://www.yelp.com/developers/documentation/v3). It's incredibly intuitive to use, and only requires registering your "App" to receive an API key. This is opposed to Google Places that requires a cloud instance and a cloud account with free credits to eventually pull data that costs extra if you want pricing data which has the potential to snowball quickly. Now, the downside of course is for a restaurant to appear in the Yelp data, someone needs to have reviewed it. This does limit the data's exposure to new establishments, but as is this is more of a study on overall behavior of restaurant pricing I believe that's an issue that could be pushed to a more in-depth analysis down the road.
 
 The other downside to Yelp, is it limits each query to a maximum result list of 1000 entries. So, if I were to try and GET all restaurants in Boston, I would only receive a list of 1000. The way this list is selected isn't really told to us either, so we have to assume it's some internal logic that we can't attribute for. To get around this, I changed my query from GETting all restaurants in Boston, to individual GET requests for every zipcode in the greater Metropolitan area of Boston. Now, there still may be more than 1000 places in each of these locations but once we filtered the resulting 22000 entries for duplicates, our final Boston restaurant listhad around 4,000 entries. a firm upgrade of our original 1000 by 4 fold. 
 
@@ -39,28 +39,32 @@ For income data, I used city-data.com. While they don't have an exact trail to w
 
 The rest of our data is locations and name fields necessary for identifying the neighborhoods and zipcodes of Boston. The majority come from [data.boston.gov](https:/data.boston.gov), in the form of [zips](https://data.boston.gov/dataset/zip-codes1), [Neighborhoods](https://data.boston.gov/dataset/boston-neighborhoods), and [Colleges](https://data.boston.gov/dataset/colleges-and-universities).
 
-## QGIS 
+## QGIS
+<u>Restaurant Pricing Map</u>
 
-So, here is our first analysis: an overlay of of median restaurant prices per zipcode over a map of Boston with neighborhood names for reference. Blue, means no data could be collected in those areas. Dark purple indicates a median restaurant price of 1 ``$`` (Below ``$``10 for a meal), Pink is an average of 1.5 ``$``, and Orange shows a median restaurant price of ``$$`` (Between ``$``11-30, The big times).
+Here is our first analysis: an overlay of median restaurant prices per zipcode over a map of Boston with neighborhood names for reference. Blue, means no data could be collected in those areas. Dark purple indicates a median restaurant price of 1 ``$`` (Below ``$``10 for a meal), Pink is an average of 1.5 ``$``, and Orange shows a median restaurant price of ``$$`` (Between ``$``11-30).
 
-![heatmap1](https://cheveldrid.github.io/boston/basic-rest-heatmap.jpg "Restaurants of Boston heatmap")
+![Basic Pricing Map](https://cheveldrid.github.io/boston/basic-rest-heatmap.jpg "Restaurants of Boston heatmap")
 And better yet, here's the actual key...
 
-![mapkey](https://cheveldrid.github.io/boston/qgis-key.jpg "Map key")
+![Map Key](https://cheveldrid.github.io/boston/qgis-key.jpg "Map key")
 
 Now let's overlay the average incomes per zipcode on top. There's going to be a lot of data here so at first it'll look a little messy, but if you look closely...well it won't get any cleaner but maybe by then you'll have adjusted.
+<br />
 
 ![Salary Heatmap](https://cheveldrid.github.io/boston/rest-heatmap-sals.jpg "Restaurants and salaries of Boston heatmap")
 
-...You'll also notice a distinct lack of correlation between incomes and the color-coded map. Perhaps one of the most pronounced examples is comparing the incomes in Back Bay, a decidedly more expensive per restaurant area to Roslindale in the 1 ``$`` territory. So while income *may* play a roll in restaurant prices it's clearly not the deciding factor. Let's try something else.
+<br />
+You'll also notice a distinct lack of correlation between incomes and the color-coded map. Perhaps one of the most pronounced examples is comparing the incomes in Back Bay, a decidedly more expensive per restaurant area to Roslindale in the 1 ``$`` territory. So while income *may* play a roll in restaurant prices it's clearly not the deciding factor. Let's try something else.
+<br />
 
 ![Colleges Heatmap](https://cheveldrid.github.io/boston/heatmap-with-colleges.jpg "Restaurants and collegies of Boston heatmap")
+<br />
 
 Here we've added red dots for all colleges and universities in the Boston area. While there are a few outliers, there's a decided clump in the Back Bay area where restaurant prices are significantly higher than most surrounding areas. Now, as a college student I won't say we're the only thing contributing to higher food prices but we certainly do eat out a lot. We've also seen trends on and around campus specifically toward higher cost restaurants. Removing the Taco bell from Curry for a higher average cost Mediterranean eatery, and ABP leaving Marino to be replaced by Tatte. Which, funnily enough, both ABP and Tatte are owned by Panera and offer similar food options so the only *real* reason for the switch must be related to price....
 
-NEED MORE STUFFS
-
 ## R Charts
+<u>Pricing Analysis</u>
 
 Apart from all the location-based data crunching, there's also an opportunity to dig through the specific food data aggregating on type as opposed to zipcode.
 
@@ -79,27 +83,25 @@ for(i in 1:nrow(fixed_data)) {
     }
     # do stuff with row
 }
-#individual zip work
-#nrow(split_cats)
-#split_cats <- split_cats[split_cats$Zip == 02151, ]
-#nrow(split_cats)
 ```
 
-First, let's investigate what Yelp reviewers are saying is the most pricy food in Boston. We'll skin down the split categories data frame into just price and category before sorting, finding the mean, and filtering for all categories that have more than 5 reviews. (That way if a type of restaurant is only listed once at a value of "1",  it doesn't completely upset the crowdsourcing angle of this data). I'm not surprised to see Steakhouses first, and organic stores not far behind. 
+
+Now let's investigate what Yelp reviewers are saying is the most pricy food in Boston. We'll skin down the split categories data frame into just price and category before sorting, finding the mean, and filtering for all categories that have more than 5 reviews. (That way if a type of restaurant is only listed once at a value of "1",  it doesn't completely upset the crowdsourcing angle of this data). I'm not surprised to see Steakhouses first, and organic stores not far behind. 
+
+You'll also notice some commented-out code relating to specific zipcodes. With a few line-switches, this is the same block I did analyses for most expensive foods per Boston zipcodes, but more on that later.
 
 ```{r}
 #split_cats
 #Special code for per zip analysis
-zipped_cats <- split_cats[split_cats$Zip == 02163, ]
-skinned_cats <- data.frame("PriceCount" = zipped_cats$PriceCount, "Category" = zipped_cats$Category)
-#skinned_cats <- data.frame("PriceCount" = split_cats$PriceCount, "Category" = split_cats$Category)
+#zipped_cats <- split_cats[split_cats$Zip == 02163, ]
+#skinned_cats <- data.frame("PriceCount" = zipped_cats$PriceCount, "Category" = zipped_cats$Category)
+skinned_cats <- data.frame("PriceCount" = split_cats$PriceCount, "Category" = split_cats$Category)
 avg_column <- aggregate(. ~ skinned_cats$Category, skinned_cats[-2], mean)
 freq_column <- data.frame(table(skinned_cats$Category))
 freq_column <- freq_column[freq_column$Freq > 0, ]
 freq_column <- data.frame("Category" = freq_column$Var1, "Count"=freq_column$Freq)
 skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount, "Count" = freq_column$Count)
-#skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount)
-skinned_cats <- skinned_cats[skinned_cats$Count >= 0,]
+skinned_cats <- skinned_cats[skinned_cats$Count > 5,]
 expensive_cats <- head(skinned_cats[order(skinned_cats$AvgPrice,decreasing=TRUE),], n = 20)
 expensive_cats
 ```
@@ -111,12 +113,16 @@ skinned_cats <- data.frame("PriceCount" = split_cats$PriceCount, "Category" = sp
 avg_column <- aggregate(. ~ skinned_cats$Category, skinned_cats[-2], mean)
 freq_column <- data.frame(table(skinned_cats$Category))
 freq_column <- data.frame("Category" = freq_column$Var1, "Count"=freq_column$Freq)
-#skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount, "Count" = freq_column$Count)
-skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount)
-#skinned_cats <- skinned_cats[skinned_cats$Count > 5,]
+skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount, "Count" = freq_column$Count)
+skinned_cats <- skinned_cats[skinned_cats$Count > 5,]
 cheapest_cats <- head(skinned_cats[order(skinned_cats$AvgPrice,decreasing=FALSE),], n = 20)
 cheapest_cats
 ```
+
+Finding International Grocery on here is a really interesting statement about Ethnic supermarket prices, I believe Grocery was actually the highest cost food in a zip code or two...
+
+<u>Rating Analysis</u>
+
 Next, let's take a look at the Highest rated eating establishments in Boston with a similar process to ranking by price above
 ```{r}
 skinned_cats <- data.frame("Rating" = split_cats$Rating, "Category" = split_cats$Category)
@@ -141,6 +147,22 @@ skinned_cats <- skinned_cats[skinned_cats$Count > 5,]
 disliked_cats <- head(skinned_cats[order(skinned_cats$Rating,decreasing=FALSE),], n = 20)
 disliked_cats
 ```
+
+There's very few actual lowl, low reviews. So the fact that a lot of these values are so high is due to human nature not really wanting to rate a place before 2.5 stars (on average). The fact that this data is already filtered to only include restaurants actually brings more questions than answers: did people go to Drugstores expecting table service? Perhaps once they realized these are more "pay at the counter" type establishments they hit the dislike button.
+
+## Thank You
+<u>Expensive Food Map</u>
+
+With that, I want to stay thanks for sticking around until the end of this document and as a reward I'll show you my favorite restaurant graphic: most expensive foods per zipcode overlayed onto the heatmap of Boston:
+
+<br />
+![Expensive Foods by Zip](https://cheveldrid.github.io/boston/expensive-foods.jpg "Expensive Foods by Zip")
+<br />
+
+There's a lot to unpack here, but first: some considerations. Not every zip has every type of food and some are quite scarce on places to eat period. These you might guess are the ones with listings like "Convenience Store" or "Grocery." Secondly, These aren't necessarily the *most* expensive types of food in the areas. Where allowed (i.e. enough volume of restaurants for this condition to make sense) I filtered each list so each category had to have at least two locations in the zip to make an average. I didn't want to focus this analysis on if 02115 had one really fancy burger joint and no other places like Tasty Burger skewing the ratings. So these are the most expensive types of food on average. Pizza and Seafood seemed to be the winners, funnily enough.
+
+I really enjoyed doing this project. While I went in with more tentative expectations for what I'd be able to accomplish, after I had pulled in the Yelp data I've spent the last two weeks just brainstorming any possible analysis I could think of to include. Some didn't make the cut, but a lot were easy enough to boil down into these maps and R charts. That being said there are endless other permutations of this data I didn't get around to but would love to explore so maybe I'll even update this page in future! Overall, Bostonography was a fantastic course teaching me every tool to do my own analysis on city characteristics and while I didn't necessarily prove my intiial hypothesis that average income level is directly tied to restaurant prices - I did find other factors like college locations and heaps of interesting information.
+
 ## Work Cited
 As mentioned above, all of the Restaurant data comes from the Yelp Fusion API, the income data from city-data.com, and location data from data.boston.gov. For viewer convenience, here's a list of all sources used and last access date:
 
