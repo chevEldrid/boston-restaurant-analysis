@@ -79,18 +79,27 @@ for(i in 1:nrow(fixed_data)) {
     }
     # do stuff with row
 }
+#individual zip work
+#nrow(split_cats)
+#split_cats <- split_cats[split_cats$Zip == 02151, ]
+#nrow(split_cats)
 ```
 
 First, let's investigate what Yelp reviewers are saying is the most pricy food in Boston. We'll skin down the split categories data frame into just price and category before sorting, finding the mean, and filtering for all categories that have more than 5 reviews. (That way if a type of restaurant is only listed once at a value of "1",  it doesn't completely upset the crowdsourcing angle of this data). I'm not surprised to see Steakhouses first, and organic stores not far behind. 
 
 ```{r}
 #split_cats
-skinned_cats <- data.frame("PriceCount" = split_cats$PriceCount, "Category" = split_cats$Category)
+#Special code for per zip analysis
+zipped_cats <- split_cats[split_cats$Zip == 02163, ]
+skinned_cats <- data.frame("PriceCount" = zipped_cats$PriceCount, "Category" = zipped_cats$Category)
+#skinned_cats <- data.frame("PriceCount" = split_cats$PriceCount, "Category" = split_cats$Category)
 avg_column <- aggregate(. ~ skinned_cats$Category, skinned_cats[-2], mean)
 freq_column <- data.frame(table(skinned_cats$Category))
+freq_column <- freq_column[freq_column$Freq > 0, ]
 freq_column <- data.frame("Category" = freq_column$Var1, "Count"=freq_column$Freq)
 skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount, "Count" = freq_column$Count)
-skinned_cats <- skinned_cats[skinned_cats$Count > 5,]
+#skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount)
+skinned_cats <- skinned_cats[skinned_cats$Count >= 0,]
 expensive_cats <- head(skinned_cats[order(skinned_cats$AvgPrice,decreasing=TRUE),], n = 20)
 expensive_cats
 ```
@@ -102,8 +111,9 @@ skinned_cats <- data.frame("PriceCount" = split_cats$PriceCount, "Category" = sp
 avg_column <- aggregate(. ~ skinned_cats$Category, skinned_cats[-2], mean)
 freq_column <- data.frame(table(skinned_cats$Category))
 freq_column <- data.frame("Category" = freq_column$Var1, "Count"=freq_column$Freq)
-skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount, "Count" = freq_column$Count)
-skinned_cats <- skinned_cats[skinned_cats$Count > 5,]
+#skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount, "Count" = freq_column$Count)
+skinned_cats <- data.frame("Category" = avg_column$`skinned_cats$Category`, "AvgPrice" = avg_column$PriceCount)
+#skinned_cats <- skinned_cats[skinned_cats$Count > 5,]
 cheapest_cats <- head(skinned_cats[order(skinned_cats$AvgPrice,decreasing=FALSE),], n = 20)
 cheapest_cats
 ```
