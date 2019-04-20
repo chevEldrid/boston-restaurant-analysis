@@ -13,7 +13,7 @@ library(ggplot2)
 library(data.table)
 ```
 # Introduction
-When this project was announced, I knew I wanted to do something with food. *(Maybe the 11:45am - 1:25pm timeslot subconsciously affected my decision, but here we are.)* After thinking it over for a few days, I decided I wanted to see if there was any corrolation between average incomes in Boston neighborhoods and the food offered there.
+When this project was announced, I knew I wanted to do something with food. *Maybe the 11:45am - 1:25pm timeslot subconsciously affected my decision, but here we are.* After thinking it over for a few days, I decided I wanted to see if there was any corrolation between average incomes in Boston neighborhoods and the food offered there.
 
 # Data Collection
 For restaurant data, I settled on the [Yelp Fusion API](https://www.yelp.com/developers/documentation/v3). It's incredibly intuitive to use, and only requires registering your "App" to receive an API key. This is opposed to Google Places that requires a cloud instance and a cloud account with free credits to eventually pull data that costs extra if you want pricing data which has the potential to snowball quickly. Now, the downside is for a restaurant to appear in the Yelp data, someone needs to have reviewed it. This does limit Yelp's exposure to the newest establishments, but since the focus of this study is price trends over entire food categories I don't think it makes a big difference in the grand scheme of things.
